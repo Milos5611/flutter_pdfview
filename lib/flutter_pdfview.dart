@@ -371,4 +371,10 @@ class PDFViewController {
     _settings = setting;
     return _channel.invokeMethod('updateSettings', updateMap);
   }
+
+  Future<void> highlightSearchText(String searchText) async {
+    await _channel.invokeMethod('highlightSearchText', <String, dynamic>{
+      'text': searchText,
+    });
+  }
 }

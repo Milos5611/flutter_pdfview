@@ -30,6 +30,8 @@ API_AVAILABLE(ios(11.0))
 - (void)getCurrentPage:(FlutterMethodCall*)call result:(FlutterResult)result;
 - (void)setPage:(FlutterMethodCall*)call result:(FlutterResult)result;
 - (void)onUpdateSettings:(FlutterMethodCall*)call result:(FlutterResult)result;
+- (void)highlightSearchText:(FlutterMethodCall*)call result:(FlutterResult)result;
+- (void)removeSearchHighlights;
 @end
 
 API_AVAILABLE(ios(11.0))
