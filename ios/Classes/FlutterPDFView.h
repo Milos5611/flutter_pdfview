@@ -31,6 +31,7 @@ API_AVAILABLE(ios(11.0))
 - (void)setPage:(FlutterMethodCall*)call result:(FlutterResult)result;
 - (void)onUpdateSettings:(FlutterMethodCall*)call result:(FlutterResult)result;
 - (void)highlightSearchText:(FlutterMethodCall*)call result:(FlutterResult)result;
+- (void)searchPdfTextForText:(FlutterMethodCall*)call result:(FlutterResult)result;
 - (void)removeSearchHighlights;
 @end
 

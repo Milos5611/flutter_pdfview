@@ -67,8 +67,9 @@
     } else if ([[call method] isEqualToString:@"highlightSearchText"]) {
         [_pdfView highlightSearchText:call result:result];
         result(nil);
-        
-    } else {
+    } else if([[call method] isEqualToString:@"searchPdfTextForText"])  {
+        [_pdfView searchPdfTextForText:call result:result];
+    }else {
         result(FlutterMethodNotImplemented);
     }
 }
@@ -270,6 +271,35 @@
     }
 }
 
+- (void)searchPdfTextForText:(FlutterMethodCall*)call result:(FlutterResult)result {
+    NSUInteger pageIndex;
+    PDFDocument *pdfDocument = _pdfView.document;
+    NSDictionary<NSString*, NSString*>* arguments = [call arguments];
+    NSString* searchText = arguments[@"searchText"];
+
+    NSMutableArray *allSelections = [NSMutableArray array];
+    for (pageIndex = 0; pageIndex < pdfDocument.pageCount; pageIndex++) {
+            PDFPage *pdfPage = [pdfDocument pageAtIndex:pageIndex];
+            NSArray<PDFSelection *> *searchResults = [pdfDocument findString:searchText withOptions:NSCaseInsensitiveSearch];
+
+            for (PDFSelection *selection in searchResults) {
+                PDFAnnotation *annotation = [[PDFAnnotation alloc] initWithBounds:[selection boundsForPage:pdfPage] forType:PDFAnnotationSubtypeHighlight withProperties:nil];
+                annotation.color = [UIColor colorWithRed: 0.96 green: 0.93 blue: 0.76 alpha: 1.00]; // Semi-transparent yellow color
+                annotation.page = pdfPage;
+                [pdfPage addAnnotation:annotation];
+
+                // Set the blending mode for the annotation color
+                CGContextRef context = UIGraphicsGetCurrentContext();
+                CGContextSetBlendMode(context, kCGBlendModeMultiply);
+                [annotation drawWithBox:kPDFDisplayBoxMediaBox inContext:context];
+
+                [allSelections addObject:selection];
+            }
+        }
+
+    result(allSelections);
+}
+
 - (void)highlightSearchText:(FlutterMethodCall*)call result:(FlutterResult)result {
     NSUInteger pageIndex;
     PDFDocument *pdfDocument = _pdfView.document;
@@ -299,7 +329,8 @@
     }
     
     _pdfView.highlightedSelections = allSelections;
-    
+    NSLog(@"XXXXX '%@'", allSelections);
+
     // Set the page to the first occurrence of the search text
     PDFSelection *firstOccurrence = [self findFirstOccurrenceOfSearchText:searchText inDocument:pdfDocument];
     if (firstOccurrence) {

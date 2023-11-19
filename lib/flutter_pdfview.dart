@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter/rendering.dart';
 
 typedef PDFViewCreatedCallback = void Function(PDFViewController controller);
 typedef RenderCallback = void Function(int? pages);
@@ -376,5 +376,16 @@ class PDFViewController {
     await _channel.invokeMethod('highlightSearchText', <String, dynamic>{
       'text': searchText,
     });
+  }
+
+  Future searchPdfText(String searchText) async {
+    try {
+      final result = await _channel.invokeMethod('searchPdfTextForText', {
+        'searchText': searchText,
+      });
+      return result;
+    } catch (e) {
+      throw 'Error searching PDF text: ${e}';
+    }
   }
 }
