@@ -378,14 +378,10 @@ class PDFViewController {
     });
   }
 
-  Future searchPdfText(String searchText) async {
-    try {
-      final result = await _channel.invokeMethod('searchPdfTextForText', {
-        'searchText': searchText,
-      });
-      return result;
-    } catch (e) {
-      throw 'Error searching PDF text: ${e}';
-    }
+  Future<dynamic> searchPdfText(String searchText) async {
+    final result = await _channel.invokeMethod('searchPdfTextForText', <String, dynamic>{
+      'searchText': searchText,
+    });
+    return result;
   }
 }
