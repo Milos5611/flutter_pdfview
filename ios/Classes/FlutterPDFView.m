@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 #import "FlutterPDFView.h"
+#import "SearchResult.h"
 
 @implementation FLTPDFViewFactory {
     NSObject <FlutterBinaryMessenger> *_messenger;
@@ -281,18 +282,6 @@
     }
 }
 
-// - (void)searchPdfTextForText:(FlutterMethodCall *)call result:(FlutterResult)result {
-//     NSUInteger pageIndex;
-//     PDFDocument *pdfDocument = _pdfView.document;
-//     NSDictionary < NSString * , NSString * > *arguments = [call arguments];
-//     NSString *searchText = arguments[@"searchText"];
-//
-//     NSMutableArray *allSelections = [NSMutableArray array];
-//     NSArray <PDFSelection *> *searchResults = [pdfDocument findString:searchText withOptions:NSCaseInsensitiveSearch];
-//     NSLog(@"%@", searchResults);
-//     result(searchResults);
-// }
-
 - (void)searchPdfTextForText:(FlutterMethodCall *)call result:(FlutterResult)result {
     // Create a PDFDocument from the PDF file URL.
     PDFDocument *pdfDocument = _pdfView.document;
@@ -300,8 +289,9 @@
     NSString *searchText = arguments[@"searchText"];
 
     // Create an array to store the found selections.
-    NSMutableArray<PDFSelection *> *foundSelections = [NSMutableArray array];
-    NSArray <PDFSelection *> *searchResults = [pdfDocument findString:searchText withOptions:NSCaseInsensitiveSearch];
+    NSMutableArray<SearchResult *> *foundSelections = [NSMutableArray array];
+//    NSArray <PDFSelection *> *searchResults = [pdfDocument findString:searchText withOptions:NSCaseInsensitiveSearch];
+    // Convert custom objects to dictionaries
     NSMutableArray *searchResultsDicts = [NSMutableArray array];
     // Iterate through each page in the PDF document.
     for (NSInteger pageIndex = 0; pageIndex < pdfDocument.pageCount; pageIndex++) {
@@ -314,12 +304,23 @@
         NSRange range = [pageText rangeOfString:searchText options:NSCaseInsensitiveSearch];
 
         if (range.location != NSNotFound) {
-            // Create a PDFSelection object for the found text range.
-            PDFSelection *selection = [pdfPage selectionForRange:range];
+           // Create a PDFSelection object for the found text range.
+           PDFSelection *selection = [pdfPage selectionForRange:NSMakeRange(0, range.location + range.length)];
 
-            // Add the found selection to the result array.
-             [searchResultsDicts addObject:selection];
+           // Create a custom SearchResult object
+           SearchResult *result = [[SearchResult alloc] initWithPage:([selection string]) page:(pageIndex + 1)];
+
+           [foundSelections addObject:result];
         }
+    }
+
+    for (SearchResult *result in foundSelections) {
+        NSDictionary *resultDict = @{
+            @"page": @(result.page),
+            @"text": result.text,
+        };
+
+        [searchResultsDicts addObject:resultDict];
     }
 
     result([searchResultsDicts copy]);
@@ -354,7 +355,6 @@
     }
 
     _pdfView.highlightedSelections = allSelections;
-    NSLog(@"XXXXX '%@'", allSelections);
 
     // Set the page to the first occurrence of the search text
     PDFSelection *firstOccurrence = [self findFirstOccurrenceOfSearchText:searchText inDocument:pdfDocument];

@@ -26,6 +26,7 @@ class PDFView extends StatefulWidget {
     this.onError,
     this.onPageError,
     this.onLinkHandler,
+    this.searchPdfText,
     this.gestureRecognizers,
     this.enableSwipe = true,
     this.swipeHorizontal = false,
@@ -61,6 +62,8 @@ class PDFView extends StatefulWidget {
 
   /// Used with preventLinkNavigation=true. It's helpful to customize link navigation
   final LinkHandlerCallback? onLinkHandler;
+
+  final searchPdfText;
 
   /// Which gestures should be consumed by the pdf view.
   ///
@@ -333,8 +336,11 @@ class PDFViewController {
         if (_widget.onLinkHandler != null) {
           _widget.onLinkHandler!(call.arguments);
         }
-
         return null;
+      case 'searchPdfText':
+        if (_widget.searchPdfText != null) {
+          _widget.searchPdfText!(call.arguments);
+        }
     }
     throw MissingPluginException(
         '${call.method} was invoked but has no handler');
@@ -379,9 +385,15 @@ class PDFViewController {
   }
 
   Future<dynamic> searchPdfText(String searchText) async {
-    final result = await _channel.invokeMethod('searchPdfTextForText', <String, dynamic>{
-      'searchText': searchText,
-    });
-    return result;
+    try{
+      final result = await _channel.invokeMethod('searchPdfTextForText', <String, dynamic>{
+        'searchText': searchText,
+      });
+      print(result.toString());
+      return result;
+    } on PlatformException catch (e) {
+      // Handle any platform-specific errors
+      print("Error: ${e.message}");
+    }
   }
 }

@@ -3,12 +3,11 @@
 
 @implementation SearchResult
 
-- (instancetype)initWithPage:(NSInteger)page x:(CGFloat)x y:(CGFloat)y {
+- (instancetype)initWithPage:(NSString *)text page:(NSInteger)page {
     self = [super init];
     if (self) {
         _page = page;
-        _x = x;
-        _y = y;
+        _text = [text copy];
     }
     return self;
 }

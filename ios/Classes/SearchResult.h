@@ -1,12 +1,12 @@
 // SearchResult.h
 #import <Foundation/Foundation.h>
+#import "SearchResult.h"
 
 @interface SearchResult : NSObject
 
 @property (nonatomic, assign) NSInteger page;
-@property (nonatomic, assign) CGFloat x;
-@property (nonatomic, assign) CGFloat y;
+@property (nonatomic, strong) NSString *text;
 
-- (instancetype)initWithPage:(NSInteger)page x:(CGFloat)x y:(CGFloat)y;
+- (instancetype)initWithPage:(NSString *)text page:(NSInteger)page;
 
 @end
