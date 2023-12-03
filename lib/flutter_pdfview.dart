@@ -389,7 +389,6 @@ class PDFViewController {
       final result = await _channel.invokeMethod('searchPdfTextForText', <String, dynamic>{
         'searchText': searchText,
       });
-      print(result.toString());
       return result;
     } on PlatformException catch (e) {
       // Handle any platform-specific errors
