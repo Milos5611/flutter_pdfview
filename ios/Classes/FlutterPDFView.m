@@ -132,6 +132,8 @@
             [_controler invokeChannelMethod:@"onError" arguments:@{
                     @"error": @"cannot create document: File not in PDF format or corrupted."}];
         } else {
+            // [document findString:@"" withOptions:NSCaseInsensitiveSearch];
+
             _pdfView.autoresizesSubviews = true;
             _pdfView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
             _pdfView.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1.0];
@@ -309,7 +311,7 @@
             NSString *cutString = [pageText substringWithRange:NSMakeRange(startIndex, endIndex - startIndex)];
 
            // Create a custom SearchResult object
-            NSDictionary *result = @{@"text": cutString, @"page": @(pageIndex + 1)};
+            NSDictionary *result = @{@"text": cutString, @"page": @(pageIndex)};
            [foundSelections addObject:result];
         }
     }
