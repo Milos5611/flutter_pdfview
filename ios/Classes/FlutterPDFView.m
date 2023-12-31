@@ -304,26 +304,17 @@
         NSRange range = [pageText rangeOfString:searchText options:NSCaseInsensitiveSearch];
 
         if (range.location != NSNotFound) {
-           // Create a PDFSelection object for the found text range.
-           PDFSelection *selection = [pdfPage selectionForRange:NSMakeRange(0, range.location + range.length)];
+            NSUInteger startIndex = (range.location >= 40) ? range.location - 40 : 0;
+            NSUInteger endIndex = (range.location + range.length + 40 <= pageText.length) ? range.location + range.length + 40 : pageText.length;
+            NSString *cutString = [pageText substringWithRange:NSMakeRange(startIndex, endIndex - startIndex)];
 
            // Create a custom SearchResult object
-           SearchResult *result = [[SearchResult alloc] initWithPage:([selection string]) page:(pageIndex + 1)];
-
+            NSDictionary *result = @{@"text": cutString, @"page": @(pageIndex + 1)};
            [foundSelections addObject:result];
         }
     }
 
-    for (SearchResult *result in foundSelections) {
-        NSDictionary *resultDict = @{
-            @"page": @(result.page),
-            @"text": result.text,
-        };
-
-        [searchResultsDicts addObject:resultDict];
-    }
-
-    result([searchResultsDicts copy]);
+    result(foundSelections);
 }
 
 - (void)highlightSearchText:(FlutterMethodCall *)call result:(FlutterResult)result {
