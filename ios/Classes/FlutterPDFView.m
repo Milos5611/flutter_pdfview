@@ -132,8 +132,6 @@
             [_controler invokeChannelMethod:@"onError" arguments:@{
                     @"error": @"cannot create document: File not in PDF format or corrupted."}];
         } else {
-            // [document findString:@"" withOptions:NSCaseInsensitiveSearch];
-
             _pdfView.autoresizesSubviews = true;
             _pdfView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
             _pdfView.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1.0];
@@ -294,7 +292,6 @@
     NSMutableArray<SearchResult *> *foundSelections = [NSMutableArray array];
 //    NSArray <PDFSelection *> *searchResults = [pdfDocument findString:searchText withOptions:NSCaseInsensitiveSearch];
     // Convert custom objects to dictionaries
-    NSMutableArray *searchResultsDicts = [NSMutableArray array];
     // Iterate through each page in the PDF document.
     for (NSInteger pageIndex = 0; pageIndex < pdfDocument.pageCount; pageIndex++) {
         PDFPage *pdfPage = [pdfDocument pageAtIndex:pageIndex];
@@ -306,12 +303,13 @@
         NSRange range = [pageText rangeOfString:searchText options:NSCaseInsensitiveSearch];
 
         if (range.location != NSNotFound) {
-            NSUInteger startIndex = (range.location >= 40) ? range.location - 40 : 0;
-            NSUInteger endIndex = (range.location + range.length + 40 <= pageText.length) ? range.location + range.length + 40 : pageText.length;
+            NSUInteger startIndex = (range.location >= 30) ? range.location - 30 : 0;
+            NSUInteger endIndex = (range.location + range.length + 30 <= pageText.length) ? range.location + range.length + 30 : pageText.length;
+            
             NSString *cutString = [pageText substringWithRange:NSMakeRange(startIndex, endIndex - startIndex)];
 
            // Create a custom SearchResult object
-            NSDictionary *result = @{@"text": cutString, @"page": @(pageIndex)};
+            NSDictionary *result = @{@"text": [NSString stringWithFormat:@"...%@...", cutString], @"page": @(pageIndex)};
            [foundSelections addObject:result];
         }
     }
