@@ -4,7 +4,7 @@ public class SearchResult {
   public final String text;
   public final int pageNumber;
 
-  public SearchResult(String text, int pageNumber) {
+  public SearchResult(int pageNumber, String text) {
     this.text = text;
     this.pageNumber = pageNumber;
   }

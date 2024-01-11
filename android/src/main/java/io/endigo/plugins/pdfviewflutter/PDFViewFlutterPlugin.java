@@ -3,7 +3,6 @@ package io.endigo.plugins.pdfviewflutter;
 import androidx.annotation.NonNull;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
-import io.flutter.plugin.common.BinaryMessenger;
 
 public class PDFViewFlutterPlugin implements FlutterPlugin {
     /**
