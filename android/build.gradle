@@ -5,9 +5,6 @@ buildscript {
     repositories {
         google()
         mavenCentral()
-        flatDir {
-            dirs 'lib'
-        }
     }
 
     dependencies {
@@ -39,7 +36,12 @@ android {
 
 dependencies {
     implementation 'com.github.mhiew:android-pdf-viewer:3.2.0-beta.3'
-    implementation files('lib/build/outputs/aar/lib-release.aar')
-    implementation files('jni/build/outputs/aar/jni-release.aar')
+    implementation files('libs/mupdf-1.23.7a-android-mini.apk')
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.google.code.gson:gson:2.10'
+
+//    implementation files('lib/build/outputs/aar/lib-release.aar')
+    implementation files('libs/mupdf-android-fitz-release.aar')
+//    implementation files('jni/build/outputs/aar/jni-release.aar')
 }
 

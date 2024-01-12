@@ -2,10 +2,10 @@ package io.endigo.plugins.pdfviewflutter;
 
 public class SearchResult {
   public final String text;
-  public final int pageNumber;
+  public final int page;
 
-  public SearchResult(int pageNumber, String text) {
+  public SearchResult(int page, String text) {
     this.text = text;
-    this.pageNumber = pageNumber;
+    this.page = page;
   }
 }

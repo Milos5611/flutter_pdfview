@@ -1,6 +1,7 @@
 package io.endigo.plugins.pdfviewflutter;
 
 import android.content.Context;
+import android.text.AutoText;
 import android.view.View;
 import android.net.Uri;
 
@@ -17,9 +18,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.artifex.mupdf.fitz.Document;
 import com.artifex.mupdf.fitz.Page;
-import com.artifex.mupdf.viewer.MuPDFCore;
+import com.artifex.mupdf.fitz.Quad;
+import com.artifex.mupdf.fitz.StructuredText;
+import com.artifex.mupdf.fitz.Text;
 import com.github.barteksc.pdfviewer.PDFView;
 import com.github.barteksc.pdfviewer.PDFView.Configurator;
 import com.github.barteksc.pdfviewer.listener.*;
@@ -27,18 +29,19 @@ import com.github.barteksc.pdfviewer.util.FitPolicy;
 
 import com.github.barteksc.pdfviewer.link.LinkHandler;
 
+import com.artifex.mupdf.fitz.Document;
+import com.google.gson.Gson;
+
 public class FlutterPDFView implements PlatformView, MethodCallHandler {
     private final PDFView pdfView;
     private final MethodChannel methodChannel;
     private final LinkHandler linkHandler;
     private String filePath;
-    private final Context mContext;
-    private final MuPDFCore muPDFCore;
+
 
     @SuppressWarnings("unchecked")
     FlutterPDFView(Context context, BinaryMessenger messenger, int id, Map<String, Object> params) {
         pdfView = new PDFView(context, null);
-        this.mContext = context;
         final boolean preventLinkNavigation = getBoolean(params, "preventLinkNavigation");
 
         methodChannel = new MethodChannel(messenger, "plugins.endigo.io/pdfview_" + id);
@@ -133,27 +136,50 @@ public class FlutterPDFView implements PlatformView, MethodCallHandler {
         }
     }
 
-    public List<SearchResult> searchTextInPdf(MethodCall call, Result result) {
+    public void searchTextInPdf(MethodCall call, Result result) {
         String searchText = call.argument("searchText");
         List<SearchResult> results = new ArrayList<>();
 
         try {
             Document document = Document.openDocument(filePath);
             for (int pageIndex = 0; pageIndex < document.countPages(); pageIndex++) {
-                Page page = document.loadPage(pageIndex);
-                String pageText = page.toString();
+              Page page = document.loadPage(pageIndex);
+              StructuredText st = page.toStructuredText();
 
-                if (pageText.contains(searchText)) {
-                    results.add(new SearchResult(pageIndex + 1, searchText));
+              StringBuilder textBuilder = new StringBuilder();
+
+              for (StructuredText.TextBlock block : st.getBlocks()) {
+                for (StructuredText.TextLine line : block.lines) {
+                  for (StructuredText.TextChar ch : line.chars) {
+                    textBuilder.append((char) ch.c);
+                  }
                 }
+              }
+
+              String extractedText = textBuilder.toString();
+              int index = extractedText.indexOf(searchText);
+
+              if (index != -1) {
+                int start = Math.max(0, index - 30);
+                int end = Math.min(extractedText.length(), index + searchText.length() + 30);
+                String textCut = extractedText.substring(start, end);
+                results.add(new SearchResult(pageIndex, textCut));
+              }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
 
-        return results;
+        String searchResults = convertSearchResultsToJson(results);
+
+        result.success(searchResults);
     }
+
+  private String convertSearchResultsToJson(List<SearchResult> searchResults) {
+    Gson gson = new Gson();
+    return gson.toJson(searchResults);
+  }
 
 
     void getPageCount(Result result) {
@@ -243,4 +269,3 @@ public class FlutterPDFView implements PlatformView, MethodCallHandler {
         return parsed;
     }
 }
-
