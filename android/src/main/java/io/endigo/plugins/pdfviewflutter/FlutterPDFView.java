@@ -1,7 +1,7 @@
 package io.endigo.plugins.pdfviewflutter;
 
 import android.content.Context;
-import android.text.AutoText;
+import android.util.Log;
 import android.view.View;
 import android.net.Uri;
 
@@ -19,9 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.artifex.mupdf.fitz.Page;
-import com.artifex.mupdf.fitz.Quad;
 import com.artifex.mupdf.fitz.StructuredText;
-import com.artifex.mupdf.fitz.Text;
 import com.github.barteksc.pdfviewer.PDFView;
 import com.github.barteksc.pdfviewer.PDFView.Configurator;
 import com.github.barteksc.pdfviewer.listener.*;
@@ -137,21 +135,20 @@ public class FlutterPDFView implements PlatformView, MethodCallHandler {
     }
 
     public void searchTextInPdf(MethodCall call, Result result) {
+        Log.v("RUN", "here it runs again");
         String searchText = call.argument("searchText");
         List<SearchResult> results = new ArrayList<>();
-
         try {
             Document document = Document.openDocument(filePath);
             for (int pageIndex = 0; pageIndex < document.countPages(); pageIndex++) {
               Page page = document.loadPage(pageIndex);
-              StructuredText st = page.toStructuredText();
-
+              StructuredText st = page.toStructuredText(searchText);
               StringBuilder textBuilder = new StringBuilder();
 
               for (StructuredText.TextBlock block : st.getBlocks()) {
                 for (StructuredText.TextLine line : block.lines) {
                   for (StructuredText.TextChar ch : line.chars) {
-                    textBuilder.append((char) ch.c);
+                    textBuilder.append(ch.isWhitespace() ? " " : (char) ch.c);
                   }
                 }
               }
